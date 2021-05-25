@@ -1,0 +1,55 @@
+{
+    "kafka": {
+        "host": "kafka.host:9092"
+      },
+      "kaleyra": {
+        "api_key": "APIKEY1",
+        "sid": "SDI1",
+        "1231231231": {
+          "bridge": "+441231231231",
+          "isd": "+44"
+        }
+      },
+      "ozonetel": {
+        "api_key": "APIKEY1"
+      },
+      "exotel": {
+        "api_key": "APIKEY1"
+      },
+      "freshdesk": {
+        "api_key": "APIKEY1"
+      },
+      "hellotars": {
+        "api_key": "APIKEY1"
+      },
+      "freshdesk_wfcreate_handler": {
+        "api_key": "APIKEY1"
+      },
+      "exotelcallback": {
+        "apikey": "APIKEY1",
+        "api_token": "TOKEN1",
+        "subdomain": "@subdomain.com",
+        "sid": "SID1",
+        "callerId": "1231231231"
+      },
+      "okta": {
+        "host": "https://publichost.com",
+        "domain": "https://domain.okta.com",
+        "clientId": "CLIENTID",
+        "clientSecret": "CLIENTSECRET",
+        "apiToken": "APITOKEN"
+      },
+      "kaleyra_apicallback": {
+        "delhi": "APIKEY1",
+        "karnataka": "APIKEY2",
+        "punjab": "APIKEY3",
+        "maharashtra":   "APIKEY4",
+        "uttarakhand": "APIKEY5",
+        "abroad": "APIKEY6"
+      },
+      "message_handler": {
+        "whatsapp": {
+          "api_key": "APIKEY1"
+        }
+      }
+}

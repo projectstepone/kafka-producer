@@ -1,0 +1,4 @@
+web:
+    build: .
+    environment: : 
+        KAFKAURL: "localhost:2000"

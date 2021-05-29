@@ -51,5 +51,8 @@
         "whatsapp": {
           "api_key": "APIKEY1"
         }
+      },
+      "eksaath_callback": {
+        "api_key": "abcd"
       }
 }

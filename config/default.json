@@ -37,7 +37,8 @@
         "domain": "https://domain.okta.com",
         "clientId": "CLIENTID",
         "clientSecret": "CLIENTSECRET",
-        "apiToken": "APITOKEN"
+        "apiToken": "APITOKEN",
+        "enabled" : "false"
       },
       "kaleyra_apicallback": {
         "delhi": "APIKEY1",

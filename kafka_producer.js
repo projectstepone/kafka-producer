@@ -13,10 +13,7 @@ var config = require('./config/default.json');
 if(process.env.CONFIGPATH){
     var config = require(process.env.CONFIGPATH);
 }
-enable_okta = config.enable_okta == "true";
-
 // Express App Configuration
-
 app.use(cookieParser());
 app.use(express.static('public'));
 app.use(express.json());            // to support JSON-encoded bodies
@@ -29,10 +26,14 @@ app.use(session({
     saveUninitialized: false
 }));
 
+enable_okta = config.okta.enabled == "true" ? true :false;
+console.log(config.okta.enabled)
+var oidc;
 
 // ExpressOIDC attaches handlers for the /login and /authorization-code/callback routes
-if (enable_okta === true) {
-    const oidc = new ExpressOIDC({
+if (enable_okta == true) { 
+    console.log("--setting the oidc")
+    oidc = new ExpressOIDC({
         issuer: config.okta.domain + "/oauth2/default",
         client_id: config.okta.clientId,
         client_secret: config.okta.clientSecret,
@@ -40,6 +41,7 @@ if (enable_okta === true) {
         appBaseUrl: config.okta.host,
         scope: 'openid profile'
     });
+    
     app.use(oidc.router);
 }
 // Kafka Producer Configuration
@@ -62,11 +64,17 @@ producer.on('error', function (err) {
 });
 
 //Listening to Port
-oidc.on('ready', () => {
+if (enable_okta===true){
+    oidc.on('ready', () => {
+        app.listen(5001, function () {
+            console.log('Kafka producer running at 5001');
+        });
+    });
+} else {
     app.listen(5001, function () {
         console.log('Kafka producer running at 5001');
     });
-});
+}
 
 //Message Ingestion Functions
 exports.sendBulkMsg = async (req, res) => {

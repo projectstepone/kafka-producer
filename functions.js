@@ -253,7 +253,7 @@ exports.rawdata = (req, res) => {
     var bodyobj = {};
     bodyobj['apiPath'] = req.originalUrl;
     bodyobj['body'] = JSON.parse(JSON.stringify(req.body));
-    bodyobj['id'] = req.params.providerid.toString();
+    bodyobj['id'] = req.params.providerId.toString();
     delete req.body;
     req.body = bodyobj;
     let params = new Object();

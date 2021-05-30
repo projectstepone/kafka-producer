@@ -243,7 +243,7 @@ exports.delhiPlasmaBankHandler = (req, res) => {
     return kp.sendPlasmaMsg(req, res);
 };
 
-exports.eksaath = (req, res) => {
+exports.rawdata = (req, res) => {
     //Authenticate
     if (!req.query || req.query.api_key != config.eksaath_callback.api_key.toString()) {
         return res.status(403).send({ errorMessage: "Unauthorized Access" });
@@ -257,7 +257,7 @@ exports.eksaath = (req, res) => {
     delete req.body;
     req.body = bodyobj;
     let params = new Object();
-    params.topic = "eksaath_handler";
+    params.topic = "rawdata_handler";
     req.params = params;
     return kp.sendCallBack(req, res);
 };

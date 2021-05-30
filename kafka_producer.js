@@ -27,12 +27,11 @@ app.use(session({
 }));
 
 enable_okta = config.okta.enabled == "true" ? true :false;
-console.log(config.okta.enabled)
+
 var oidc;
 
 // ExpressOIDC attaches handlers for the /login and /authorization-code/callback routes
-if (enable_okta == true) { 
-    console.log("--setting the oidc")
+if (enable_okta) { 
     oidc = new ExpressOIDC({
         issuer: config.okta.domain + "/oauth2/default",
         client_id: config.okta.clientId,
@@ -64,7 +63,7 @@ producer.on('error', function (err) {
 });
 
 //Listening to Port
-if (enable_okta===true){
+if (enable_okta){
     oidc.on('ready', () => {
         app.listen(5001, function () {
             console.log('Kafka producer running at 5001');
@@ -237,4 +236,4 @@ app.get('/dbp/:uuid',providerCallbackHandlers.delhiPlasmaBankHandler);
 app.get('/tickethandler/freshdesk/wfcreate', providerCallbackHandlers.freshdeskTicketWfCreationHandler);
 
 app.get('/messagehandler/:providerid/:apikey', providerCallbackHandlers.providerMessageHandler);
-app.post('/eksaath/:apikey', providerCallbackHandlers.eksaath);
+app.post('/rawdata/:apikey', providerCallbackHandlers.rawdata);

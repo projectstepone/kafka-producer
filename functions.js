@@ -243,6 +243,25 @@ exports.delhiPlasmaBankHandler = (req, res) => {
     return kp.sendPlasmaMsg(req, res);
 };
 
+exports.eksaath = (req, res) => {
+    //Authenticate
+    if (!req.query || req.query.api_key != config.eksaath_callback.api_key.toString()) {
+        return res.status(403).send({ errorMessage: "Unauthorized Access" });
+    } else {
+        delete req.query.api_key;
+    }
+    var bodyobj = {};
+    bodyobj['apiPath'] = req.originalUrl;
+    bodyobj['body'] = JSON.parse(JSON.stringify(req.body));
+    bodyobj['id'] = req.params.providerid.toString();
+    delete req.body;
+    req.body = bodyobj;
+    let params = new Object();
+    params.topic = "eksaath_handler";
+    req.params = params;
+    return kp.sendCallBack(req, res);
+};
+
 //FreshDesk Workflow Creation Endpoint
 exports.freshdeskTicketWfCreationHandler = (req, res) => {
 
@@ -294,29 +313,7 @@ exports.providerMessageHandler = (req, res) => {
 
     return kp.sendMsg(req, res);
 };
-//Eksaath Callback from StepOne For Workflow stages
-exports.providerEksaathHandler = (req,res) => {
-    //Authenticate
-    if (!req.query || req.query.api_key != config.eksaath_callback.api_key.toString()) {
-        return res.status(403).send({ errorMessage: "Unauthorized Access" });
-    } else {
-        delete req.query.api_key;
-    }
-    console.log("Query: ", JSON.stringify(req.query));
-    // if (Object.keys(req.query).length === 0 && req.query.constructor === Object) {
-    //     return res.status(400).send({ errorMessage: "Eksaath icket Details required as Query Params" });
-    // }
-    var parsedUrl = getParsedUrl(req);
-    req.body['queryString'] = parsedUrl.search;
-    req.body['apiPath'] = parsedUrl.pathname;
-    req.body['id'] = "eksaath";
 
-    let params = new Object();
-    params.topic = "eksaath_callback_handler";
-    req.params = params;
-
-    return kp.sendMsg(req, res);
-};
 function getParsedUrl(req) {
     return new URL(req. protocol + "://" + req.get('host') + req.originalUrl);
 };

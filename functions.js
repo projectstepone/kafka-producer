@@ -243,6 +243,23 @@ exports.delhiPlasmaBankHandler = (req, res) => {
     return kp.sendPlasmaMsg(req, res);
 };
 
+exports.rawdata = (req, res) => {
+    //Authenticate
+    if (!req.query || req.query.api_key != config.eksaath_callback.api_key.toString()) {
+        return res.status(403).send({ errorMessage: "Unauthorized Access" });
+    } 
+    var bodyobj = {};
+    bodyobj['apiPath'] = req.originalUrl;
+    bodyobj['body'] = JSON.parse(JSON.stringify(req.body));
+    bodyobj['id'] = req.params.providerid.toString();
+    delete req.body;
+    req.body = bodyobj;
+    let params = new Object();
+    params.topic = "rawdata_handler";
+    req.params = params;
+    return kp.sendCallBack(req, res);
+};
+
 //FreshDesk Workflow Creation Endpoint
 exports.freshdeskTicketWfCreationHandler = (req, res) => {
 

@@ -13,13 +13,12 @@ var config = require('./config/default.json');
 if(process.env.CONFIGPATH){
     var config = require(process.env.CONFIGPATH);
 }
-
 // Express App Configuration
 app.use(cookieParser());
 app.use(express.static('public'));
 app.use(express.json());            // to support JSON-encoded bodies
 app.use(express.urlencoded({        // to support URL-encoded bodies
-  extended: true
+extended: true
 }));
 app.use(session({
     secret: "Project StepOne",
@@ -27,17 +26,23 @@ app.use(session({
     saveUninitialized: false
 }));
 
-// ExpressOIDC attaches handlers for the /login and /authorization-code/callback routes
-const oidc = new ExpressOIDC({
-    issuer: config.okta.domain + "/oauth2/default",
-    client_id: config.okta.clientId,
-    client_secret: config.okta.clientSecret,
-    loginRedirectUri: config.okta.host + "/authorization-code/callback",
-    appBaseUrl: config.okta.host,
-    scope: 'openid profile'
-});
-app.use(oidc.router);
+enable_okta = config.okta.enabled == "true" ? true :false;
 
+var oidc;
+
+// ExpressOIDC attaches handlers for the /login and /authorization-code/callback routes
+if (enable_okta) { 
+    oidc = new ExpressOIDC({
+        issuer: config.okta.domain + "/oauth2/default",
+        client_id: config.okta.clientId,
+        client_secret: config.okta.clientSecret,
+        loginRedirectUri: config.okta.host + "/authorization-code/callback",
+        appBaseUrl: config.okta.host,
+        scope: 'openid profile'
+    });
+    
+    app.use(oidc.router);
+}
 // Kafka Producer Configuration
 const Producer = kafka.Producer;
 const host = config.kafka.host.toString();
@@ -58,11 +63,17 @@ producer.on('error', function (err) {
 });
 
 //Listening to Port
-oidc.on('ready', () => {
+if (enable_okta){
+    oidc.on('ready', () => {
+        app.listen(5001, function () {
+            console.log('Kafka producer running at 5001');
+        });
+    });
+} else {
     app.listen(5001, function () {
         console.log('Kafka producer running at 5001');
     });
-});
+}
 
 //Message Ingestion Functions
 exports.sendBulkMsg = async (req, res) => {
@@ -191,13 +202,21 @@ function getKafkaPayload(req) {
 };
 
 // App Routes
-app.get('/', oidc.ensureAuthenticated(), agentForm.okta);
-app.get('/mental-health', oidc.ensureAuthenticated(), agentForm.mentalHealth);
-app.get('/authorization-code/callback', oidc.ensureAuthenticated(), agentForm.okta);
-
-app.get('/logout', oidc.forceLogoutAndRevoke(), agentForm.logout);
-app.post('/submit-ticket',  oidc.ensureAuthenticated(), agentForm.submitTicketCovid);
-app.post('/submit-ticket-mh',  oidc.ensureAuthenticated(), agentForm.submitMHTicket);
+if (enable_okta === true) {
+    app.get('/', oidc.ensureAuthenticated(), agentForm.okta);
+    app.get('/mental-health', oidc.ensureAuthenticated(), agentForm.mentalHealth);
+    app.get('/authorization-code/callback', oidc.ensureAuthenticated(), agentForm.okta);
+    app.get('/logout', oidc.forceLogoutAndRevoke(), agentForm.logout);
+    app.post('/submit-ticket',  oidc.ensureAuthenticated(), agentForm.submitTicketCovid);
+    app.post('/submit-ticket-mh',  oidc.ensureAuthenticated(), agentForm.submitMHTicket);
+} else {
+    app.get('/',  agentForm.okta);
+    app.get('/mental-health',  agentForm.mentalHealth);
+    app.get('/authorization-code/callback', agentForm.okta);
+    app.get('/logout', agentForm.logout);
+    app.post('/submit-ticket', agentForm.submitTicketCovid);
+    app.post('/submit-ticket-mh', agentForm.submitMHTicket);
+}
 
 app.post('/sendBulkMsg/:topic', exports.sendBulkMsg);
 app.post('/sendMsg/:topic', exports.sendMsg);
@@ -217,3 +236,4 @@ app.get('/dbp/:uuid',providerCallbackHandlers.delhiPlasmaBankHandler);
 app.get('/tickethandler/freshdesk/wfcreate', providerCallbackHandlers.freshdeskTicketWfCreationHandler);
 
 app.get('/messagehandler/:providerid/:apikey', providerCallbackHandlers.providerMessageHandler);
+app.post('/rawdata/:providerId/:apikey', providerCallbackHandlers.rawdata);

@@ -236,4 +236,4 @@ app.get('/dbp/:uuid',providerCallbackHandlers.delhiPlasmaBankHandler);
 app.get('/tickethandler/freshdesk/wfcreate', providerCallbackHandlers.freshdeskTicketWfCreationHandler);
 
 app.get('/messagehandler/:providerid/:apikey', providerCallbackHandlers.providerMessageHandler);
-app.post('/rawdata/:apikey', providerCallbackHandlers.rawdata);
+app.post('/rawdata/:providerId/:apikey', providerCallbackHandlers.rawdata);

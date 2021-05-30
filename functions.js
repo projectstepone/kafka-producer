@@ -244,7 +244,10 @@ exports.delhiPlasmaBankHandler = (req, res) => {
 };
 
 exports.rawdata = (req, res) => {
-    
+    //Authenticate
+    if (!req.query || req.query.api_key != config.eksaath_callback.api_key.toString()) {
+        return res.status(403).send({ errorMessage: "Unauthorized Access" });
+    } 
     var bodyobj = {};
     bodyobj['apiPath'] = req.originalUrl;
     bodyobj['body'] = JSON.parse(JSON.stringify(req.body));

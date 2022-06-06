@@ -8,10 +8,10 @@ if (process.env.CONFIGPATH) {
     var config = require(process.env.CONFIGPATH)
 }
 
-//Kaleyra's End Point
+// Kaleyra's End Point
 exports.kaleyra = (req, res) => {
 
-    //Authenticate
+    // Authenticate
     if (!req.query || req.query.api_key != config.kaleyra.api_key.toString()) {
         return res.status(403).send({ errorMessage: "Unauthorized Access" });
     } else {
@@ -35,17 +35,17 @@ exports.kaleyra = (req, res) => {
     return kp.sendMsg(req, res);
 };
 
-//Ozonetel's End Point
+// Ozonetel's End Point
 exports.ozonetel = (req, res) => {
 
-    //Authenticate
+    // Authenticate
     if (!req.query || req.query.auth != config.ozonetel.api_key.toString()) {
         return res.status(403).send({ errorMessage: "Unauthorized Access" });
     } else {
         delete req.query.auth;
     }
 
-    //Required Parameters
+    // Required Parameters
     if (!req.query.number) {
         return res.status(400).send({ errorMessage: "Caller Phone Number Required" });
     }
@@ -62,10 +62,10 @@ exports.ozonetel = (req, res) => {
     return kp.sendMsg(req, res);
 };
 
-//Exotel endpoint
+// Exotel endpoint
 exports.exotel = (req, res) => {
 
-    //Authenticate
+    // Authenticate
     if (!req.query || req.query.auth != config.exotel.api_key.toString()) {
         return res.status(403).send({ errorMessage: "Unauthorized Access" });
     } else {
@@ -128,29 +128,30 @@ exports.freshdesk = (req, res, next) => {
         return undefined;
     }
 
+    let state = 'default';
     if (req.query.state && config.kaleyra_apicallback[req.query.state.toLowerCase()]) {
-        kaleyrahandler(req, res, req.query.state.toLowerCase());
-    } else {
-        exotelhandler(req, res);
+        state = req.query.state.toLowerCase();
     }
+
+    kaleyrahandler(req, res, state);
 };
 
 async function kaleyrahandler(req, res, state) {
 
     try {
-        //POST call with relevant bridge if Attendee is from abroad
-        //API Doc: https://developers.kaleyra.io/docs/click-to-call-api
+        // POST call with relevant bridge if Attendee is from abroad
+        // API Doc: https://developers.kaleyra.io/docs/click-to-call-api
 
-        //Role to Bridge Number mapping saved in config
-        if(state == 'abroad') {
+        // Role to Bridge Number mapping saved in config
+        if (state == 'abroad') {
             var url = "https://api.kaleyra.io/v1/" + config.kaleyra.sid + "/voice/click-to-call";
 
-            //All Numbers need to have this format: ISD + Number
-            //Freshdesk does not send number with ISD Code
+            // All Numbers need to have this format: ISD + Number
+            // Freshdesk does not send number with ISD Code
             var post_body = {
                 "from": config.kaleyra[req.query.role].isd + req.query.attendee,
-                "to": '+91' + req.query.requester,                  //Assuming Requester is always from India
-                "bridge": config.kaleyra[req.query.role].bridge     //Error will be caught for no Role
+                "to": '+91' + req.query.requester,                  // Assuming Requester is always from India
+                "bridge": config.kaleyra[req.query.role].bridge     // Error will be caught for no Role
             }
             var post_headers = {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -245,7 +246,7 @@ exports.delhiPlasmaBankHandler = (req, res) => {
 
 exports.rawdata = (req, res) => {
     
-    //Authenticate
+    // Authenticate
     if (req.params.apikey != config.rawdata_handler[req.params.providerId].api_key.toString()) {
         return res.status(403).send({ errorMessage: "Unauthorized Access" });
     }
@@ -262,10 +263,10 @@ exports.rawdata = (req, res) => {
     return kp.sendCallBack(req, res);
 };
 
-//FreshDesk Workflow Creation Endpoint
+// FreshDesk Workflow Creation Endpoint
 exports.freshdeskTicketWfCreationHandler = (req, res) => {
 
-    //Authenticate
+    // Authenticate
     if (!req.query || req.query.api_key != config.freshdesk_wfcreate_handler.api_key.toString()) {
         return res.status(403).send({ errorMessage: "Unauthorized Access" });
     } else {
